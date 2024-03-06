@@ -1,0 +1,70 @@
+#!/bin/bash
+
+release_file=/etc/os-release
+logfile=/var/log/updater.log
+errorlog=/var/log/updater_errors.log
+
+check_exit_status() {
+       if [ $? -ne 0 ]
+        then
+            echo "An error occurred, please check the  $errorlog file."
+         else
+            echo "Your update/upgrade, is successful."
+       fi
+}
+
+
+if grep -q "Arch" $release_file
+then
+   # The host is based on Arch, run the pacman update command
+   sudo pacman -Syu
+#  1>>$logfile 2>>$errorlog
+   check_exit_status
+fi
+
+
+
+if grep -q "Ubuntu" "$release_file" || grep -q "Pop" "$release_file"; then
+    # The host is based on Ubuntu,
+    # Run the apt version of the command
+
+    # Update
+    sudo apt update -y >> "$logfile" 2>> "$errorlog"
+    check_exit_status
+    
+    sleep 30s    
+
+    # Clear log files
+    echo -n > "$logfile"
+    echo -n > "$errorlog"
+
+    # Upgrade
+    sudo apt upgrade -y >> "$logfile" 2>> "$errorlog"
+    check_exit_statu
+
+    # Clear log files again
+    echo -n > "$logfile"
+    echo -n > "$errorlog"
+fi
+
+
+
+
+#if grep -q "Ubuntu" $release_file || grep -q "Pop" $release_file
+#then
+   # The host is based on Ubuntu,
+   # Run the apt version of the command
+ #  sudo apt update -y  1>>$logfile 2>>$errorlog
+  #    for 1>>$logfile 2>>$errorlog
+    #   do
+   #       echo -n > $logfile $errorlog
+     #  done
+  # check_exit_status
+ 
+  # sudo apt upgrade -y  1>>$logfile 2>>$errorlog
+   #    for 1>>$logfile 2>>$errorlog
+    #   do
+     #     echo -n > $logfile $errorlog
+      # done
+  # check_exit_status
+#fi
